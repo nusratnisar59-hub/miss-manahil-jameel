@@ -1,20 +1,44 @@
-const http = require('http');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
-const server = http.createServer((req, res) => {
+const authRoutes = require("./routes/authRoutes");
 
-    if (req.url === '/') {
-        res.end('Welcome to the Home Page!');
-
-
-    } else if (req.url === '/about') {
-        res.end('Welcome to the About Page!');
+const app = express();
 
 
-    } else {
-        res.end('Page not found!');
-    }
-    
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+
+// Test route
+app.get("/", (req, res) => {
+  res.json({
+    message: "Authentication backend is running",
+  });
 });
-server.listen(7000, () => {
-    console.log('Server is running now on port 7000');
+
+
+// Auth routes
+app.use("/api/auth", authRoutes);
+
+
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected");
+  })
+  .catch((error) => {
+    console.error("MongoDB Connection Error:", error);
+  });
+
+
+// Server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
